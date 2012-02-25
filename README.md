@@ -76,39 +76,8 @@ Use the option `-n` to get multiple analyses for each sentence, and `-t` to get 
 TRAINING INSTRUCTIONS
 ---------------------
 
-You need a training text in the following format:
-
-```Und KON
-als KOUS
-ich PPER
-die ART
-deutsche    ADJA
-Sprache NN
-vernahm VVFIN
-,   $,
-Da  KOUS
-ward    VAFIN
-mir PPER
-seltsam ADJD
-zu  APPR
-Muthe   NN
-;   $.
-
-Ich PPER
-meinte  VVFIN
-nicht   PTKNEG
-anders  ADV
-,   $,
-als KOUS
-ob  KOUS
-das ART
-Herz    NN
-Recht   ADV
-angenehm    ADJD
-verblute    VVFIN
-.   $.```
-
-one word per line, token and tag separated by spaces/tab; empty lines for sentence boundaries.
+You need a training text in the format illustrated by sample_training_file.txt, 
+i.e. one word per line, token and tag separated by spaces/tab; empty lines for sentence boundaries.
 
 Then, execute the following two commands.
 The second one may take you several days, depending on corpus size and the number of cores (set the number processes (-p) accordingly)
