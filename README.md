@@ -38,6 +38,7 @@ REQUIREMENTS
 - SFST >= 1.3 http://www.ims.uni-stuttgart.de/projekte/gramotron/SOFTWARE/SFST.html
 
 Optional dependencies:
+
 - Perl (for tokenizer)
 - NLTK (for sentence splitter)
 
@@ -77,7 +78,7 @@ TRAINING INSTRUCTIONS
 
 You need a training text in the following format:
 
-Und KON
+```Und KON
 als KOUS
 ich PPER
 die ART
@@ -105,7 +106,7 @@ Herz    NN
 Recht   ADV
 angenehm    ADJD
 verblute    VVFIN
-.   $.
+.   $.```
 
 one word per line, token and tag separated by spaces/tab; empty lines for sentence boundaries.
 
@@ -165,13 +166,14 @@ However, there is a strong bias towards tagging unknown words as NE (named entit
 since typically, most tokens in a typical training text that are unknown to a morphological analyzer are names.
 
 With this caveat, here are three reasons to like clevertagger:
+
 - Other taggers also behave poorly for unknown words, e.g. tagging all uppercased unknown words as nouns, even if they are sentence-initial verbs/adjectives.
   However, a FST-based morphology can cover a much bigger vocabulary, and thus have fewer unknown words.
 - Performance of the tagger will probably improve further along with that of the morphological resources used (Morphisto or another lexicon based on the SMOR morphology).
 - n-best-tagging can be beneficial in some applications, as the next evaluation shows.
 
 
-A more indirect evaluation measuring parsing performance of ParZu on a 1000-sentence test set using different taggers:
+A more indirect evaluation measuring parsing performance of [ParZu](https://github.com/rsennrich/ParZu) on a 1000-sentence test set using different taggers:
 
 
 <table>
