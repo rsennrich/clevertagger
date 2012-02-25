@@ -76,11 +76,11 @@ Use the option `-n` to get multiple analyses for each sentence, and `-t` to get 
 TRAINING INSTRUCTIONS
 ---------------------
 
-You need a training text in the format illustrated by sample_training_file.txt, 
+You need a training text in the format illustrated by `sample_training_file.txt`, 
 i.e. one word per line, token and tag separated by spaces/tab; empty lines for sentence boundaries.
 
 Then, execute the following two commands.
-The second one may take you several days, depending on corpus size and the number of cores (set the number processes (-p) accordingly)
+The second one may take you several days, depending on corpus size and the number of cores (set the number processes (-p) accordingly).
 
     ./clevertagger -e < training_file > crf_training_file
 
