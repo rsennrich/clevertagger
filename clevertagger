@@ -1,0 +1,82 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright © 2011 University of Zürich
+# Author: Rico Sennrich <sennrich@cl.uzh.ch>
+
+DESC = """clevertagger is a German part-of-speech tagger based on CRF++ and Morphisto.
+It requires tokenized and sentence-delimited input (one token per line, empty line between sentenes) in UTF-8 encoding."""
+
+import sys
+import os
+import argparse
+from subprocess import Popen, PIPE
+
+def parse_command_line():
+    parser = argparse.ArgumentParser(description=DESC)
+
+    parser.add_argument('-e', action="store_true",
+                    help='Feature extraction only (no tagging).')
+
+    parser.add_argument('-i', '--input', type=argparse.FileType('r'),
+                    default=sys.stdin, metavar='FILE',
+                    help='Input file. If not given, stdin is used.')
+
+    parser.add_argument('-m', '--model', type=str,
+                    default="crfmodel", metavar='FILE',
+                    help='Path to CRF++ model.')
+
+    parser.add_argument('-n', '--nbestsents', type=int,
+                    default=1, metavar='N',
+                    help='Print N best analyses for each sentence.')
+
+    parser.add_argument('-t', '--nbesttags', type=int,
+                    default=1, metavar='N',
+                    help='Print N best analyses for each token.')
+    parser.add_argument('--tokenize', action="store_true",
+                    help='Tokenize text before tagging.')
+
+    return parser.parse_args()
+
+
+def main(args):
+
+    if args.nbesttags > 1 and args.nbestsents > 1:
+        sys.stderr.write('ERROR: --nbesttags and --nbestsents are mutually exclusive options. Aborting.\n')
+        exit()
+
+    if args.e:
+        e_out = sys.stdout
+    else:
+        e_out = PIPE
+    
+    if args.tokenize:
+        tokenizer = Popen(['perl', os.path.join(sys.path[0], 'preprocess', 'tokenizer.perl'), '-l', 'de'], stdout=PIPE)
+        e_in = tokenizer.stdout
+    else:
+        e_in = sys.stdin
+    
+    extract = Popen([os.path.join(sys.path[0], 'extract_features.py')], stdin=e_in, stdout=e_out)
+    
+    if args.e:
+        extract.wait()
+        
+    else:
+        
+        if not os.path.isabs(args.model):
+            args.model = os.path.join(sys.path[0], args.model)
+        
+        tagging_args = ['crf_test', '-m', args.model]
+        if args.nbesttags > 1:
+            tagging_args += ['-v', '2']
+        elif args.nbestsents > 1:
+            tagging_args += ['-n', str(args.nbestsents)]
+
+        tagging = Popen(tagging_args, stdin=extract.stdout, stdout=PIPE)
+        postprocess = Popen(['python', os.path.join(sys.path[0], 'postprocess.py'), str(args.nbesttags)], stdin=tagging.stdout, stdout=sys.stdout)
+        
+        postprocess.wait()
+
+
+if __name__ == '__main__':
+    args = parse_command_line()
+    main(args)
