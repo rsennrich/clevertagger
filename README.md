@@ -27,6 +27,8 @@ clevertagger is free software; you can redistribute it and/or modify it under th
 
 `tokenizer.perl` and `nonbreaking_prefix.de` are from the Moses toolkit and licensed under the LGPL (http://www.statmt.org/moses/)
 
+`preprocessing/sentence_splitter` is from the NLTK and licensed under the Apache License 2.0 (https://github.com/nltk/nltk)
+
 
 REQUIREMENTS
 ------------
@@ -40,7 +42,6 @@ REQUIREMENTS
 Optional dependencies:
 
 - Perl (for tokenizer)
-- NLTK (for sentence splitter)
 
 INSTALLATION INSTRUCTIONS
 -------------------------
