@@ -62,9 +62,6 @@ def main(args):
         
     else:
         
-        if not os.path.isabs(args.model):
-            args.model = os.path.join(sys.path[0], args.model)
-        
         tagging_args = ['crf_test', '-m', args.model]
         if args.nbesttags > 1:
             tagging_args += ['-v', '2']
