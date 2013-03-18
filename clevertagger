@@ -22,7 +22,7 @@ def parse_command_line():
                     help='Input file. If not given, stdin is used.')
 
     parser.add_argument('-m', '--model', type=str,
-                    default="crfmodel", metavar='FILE',
+                    default=os.path.join(sys.path[0],"crfmodel"), metavar='FILE',
                     help='Path to CRF++ model.')
 
     parser.add_argument('-n', '--nbestsents', type=int,
