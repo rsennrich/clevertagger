@@ -182,58 +182,48 @@ class MorphistoAnalyzer(MorphAnalyzer):
 
     def __init__(self):
         MorphAnalyzer.__init__(self)
-        
+
         #regex to get coarse POS tag from morphisto output
         self.re_mainclass = re.compile(u'<\+(.*?)>')
         self.PORT = PORT
+
+        # start server, and make sure it accepts connection
         self.p_server = self.server()
 
-    
     def server(self):
-        """Start a morphisto socket server. If one already exists, this will silently fail"""
+        """Start a socket server. If socket is busy, look for available socket"""
 
         while True:
-            self.lockfile = open('/tmp/.clevertagger-lock-{0}'.format(self.PORT),'w')
-            try:
-                self.lock = fcntl.lockf(self.lockfile, fcntl.LOCK_EX|fcntl.LOCK_NB)
-            except IOError:
-                self.PORT += 1
-                sys.stderr.write('PORT {0} busy. Trying to use PORT {1}\n'.format(self.PORT-1, self.PORT))
-                continue
-            break
-
-        server = Popen([SFST_BIN, str(self.PORT), MORPHISTO_MODEL], stderr=open('/dev/null', 'w'))
-        return server
+            server = Popen([SFST_BIN, str(self.PORT), MORPHISTO_MODEL], stderr=PIPE, bufsize=0)
+            error = ''
+            while True:
+                error += server.stderr.read(1)
+                if error.endswith('listening to the socket ...'):
+                    return server
+                elif error.endswith('ERROR on binding'):
+                    self.PORT += 1
+                    sys.stderr.write('PORT {0} busy. Trying to use PORT {1}\n'.format(self.PORT-1, self.PORT))
+                    break
+                elif server.poll():
+                    error += server.stderr.read()
+                    sys.stderr.write(error)
+                    sys.exit(1)
 
 
     def client(self, words):
-        """Communicate with morphisto socket server to obtain analysis of word list."""
+        """Communicate with socket server to obtain analysis of word list."""
 
-        while True:
-            
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((HOST, self.PORT))
-                s.send(u'\n'.join(words).encode('UTF-8'))
-                s.shutdown(socket.SHUT_WR)
-                analyses = ''
-                while True:
-                    data = s.recv(4096)
-                    if not data:
-                        break
-                    analyses += data
-                    
-                return analyses
-               
-            #If connection unsuccessful, there's two strategies:
-            # - if server process is still running, we assume that the model is still being loaded, and simply wait
-            # - if server has stopped, raise error
-            except socket.error:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, self.PORT))
+        s.send(u'\n'.join(words).encode('UTF-8'))
+        s.shutdown(socket.SHUT_WR)
+        analyses = ''
+        data = True
+        while data:
+            data = s.recv(4096)
+            analyses += data
 
-                if self.p_server.poll():
-                    sys.stderr.write('ERROR: server process has stopped\n')
-                    raise IOError
-                time.sleep(0.1)
+        return analyses
 
     
     def convert(self, analyses):
