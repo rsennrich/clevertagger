@@ -8,11 +8,10 @@ import os
 import re
 import socket
 import time
-import fcntl
 from subprocess import Popen, PIPE
 from collections import defaultdict
-from morphisto_getpos import get_true_pos
-from config import SFST_BIN, MORPHISTO_MODEL, HOST, PORT
+from smor_getpos import get_true_pos
+from config import SFST_BIN, SMOR_MODEL, PORT, SMOR_ENCODING
 
 class MorphAnalyzer():
     """Base class for morphological analysis and feature extraction"""
@@ -21,7 +20,7 @@ class MorphAnalyzer():
         
         self.posset = defaultdict(set)
 
-        # Gertwol/Morphisto only partially analyze punctuation. This adds missing analyses.
+        # Gertwol/SMOR only partially analyze punctuation. This adds missing analyses.
         for item in ['(',')','{','}','"',"'",u'”',u'“','[',']',u'«',u'»','-',u'‒',u'–',u'‘',u'’','/','...','--']:
             self.posset[item].add('$(')
         self.posset[','].add('$,')
@@ -178,12 +177,12 @@ class GertwolAnalyzer(MorphAnalyzer):
             sys.stdout.write(self.create_features(line))
 
 
-class MorphistoAnalyzer(MorphAnalyzer):
+class SMORAnalyzer(MorphAnalyzer):
 
     def __init__(self):
         MorphAnalyzer.__init__(self)
 
-        #regex to get coarse POS tag from morphisto output
+        #regex to get coarse POS tag from SMOR output
         self.re_mainclass = re.compile(u'<\+(.*?)>')
         self.PORT = PORT
 
@@ -194,7 +193,7 @@ class MorphistoAnalyzer(MorphAnalyzer):
         """Start a socket server. If socket is busy, look for available socket"""
 
         while True:
-            server = Popen([SFST_BIN, str(self.PORT), MORPHISTO_MODEL], stderr=PIPE, bufsize=0)
+            server = Popen([SFST_BIN, str(self.PORT), SMOR_MODEL], stderr=PIPE, bufsize=0)
             error = ''
             while True:
                 error += server.stderr.read(1)
@@ -214,8 +213,8 @@ class MorphistoAnalyzer(MorphAnalyzer):
         """Communicate with socket server to obtain analysis of word list."""
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((HOST, self.PORT))
-        s.send(u'\n'.join(words).encode('UTF-8'))
+        s.connect(('localhost', self.PORT))
+        s.send(u'\n'.join(words).encode(SMOR_ENCODING))
         s.shutdown(socket.SHUT_WR)
         analyses = ''
         data = True
@@ -227,12 +226,12 @@ class MorphistoAnalyzer(MorphAnalyzer):
 
     
     def convert(self, analyses):
-        """convert Morphisto output into list of POS tags"""
+        """convert SMOR output into list of POS tags"""
         
         word = ''
         for line in analyses.split('\n'):
 
-            line = line.decode("UTF-8")
+            line = line.decode(SMOR_ENCODING)
 
             if line.startswith('>'):
                 word = line[2:]
@@ -330,7 +329,7 @@ def spelling_variations(word):
 
 if __name__ == '__main__':
 
-    Analyzer = MorphistoAnalyzer()
+    Analyzer = SMORAnalyzer()
     #Analyzer = GertwolAnalyzer()
 
     Analyzer.main()

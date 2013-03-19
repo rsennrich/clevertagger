@@ -4,15 +4,15 @@ clevertagger - morphologically informed POS tagging for German
 ABOUT
 -----
 
-clevertagger is a German part-of-speech tagger based on CRF++ and Morphisto.
-Its main component is a module that extracts features from Morphisto's morphological analysis.
+clevertagger is a German part-of-speech tagger based on CRF++ and SMOR.
+Its main component is a module that extracts features from SMOR's morphological analysis.
 The combination of machine learning and FST-based morphological features promises a robust performance even for words that have not been observed during training,
 in particular morphologically complex (and rare) adjectives, verbs and nouns, which tend to have high error rates with conventional taggers.
 
 **The repository contains no pre-trained models!**
 If you know of a German corpus that is annotated in the STTS tagset and has a permissive license, please let me know.
 
-`morphisto_getpos.py` can also be used as a stand-alone script to convert the Morphisto output into a list of possible part-of-speech tags in the STTS tagset.
+`smor_getpos.py` can also be used as a stand-alone script to convert the SMOR output into a list of possible part-of-speech tags in the STTS tagset.
 
 AUTHOR
 ------
@@ -36,7 +36,7 @@ REQUIREMENTS
 - Linux (currently SFST is Unix/Linux only)
 - Python >= 2.6
 - CRF++ http://crfpp.googlecode.com/svn/trunk/doc/index.html
-- Morphisto http://code.google.com/p/morphisto/
+- an SMOR transducer (e.g. Morphisto http://code.google.com/p/morphisto/ )
 - SFST >= 1.3 http://www.ims.uni-stuttgart.de/projekte/gramotron/SOFTWARE/SFST.html
 
 Optional dependencies:

@@ -3,9 +3,9 @@
 # Copyright: University of Zurich
 # Author: Rico Sennrich
 
-# Converts output of morphisto (morphological analyzer) into POS tags in STTS tagset
-# Sample call: python morphisto_getpos.py < FILE
-# FILE is file that contains the output of morphisto morphological analysis
+# Converts output of SMOR (morphological analyzer) into POS tags in STTS tagset
+# Sample call: python smor_getpos.py < FILE
+# FILE is file that contains the output of SMOR morphological analysis
 # output is one token per line, giving all possible POS tags of the words in STTS format
 
 # $ echo -e "> kommen\nkommen<+V><Inf>\nkommen<+V><1><Pl><Pres><Ind>\nkommen<+V><1><Pl><Pres><Konj>\nkommen<+V><3><Pl><Pres><Ind>\nkommen<+V><3><Pl><Pres><Konj>" | python morphisto_getpos.py
@@ -15,7 +15,7 @@
 import sys
 import re
 
-#maps from morphisto tags to stts tags
+#maps from SMOR tags to stts tags
 map_stts = {}
 map_stts['DEM'] = 'PD'
 map_stts['INDEF'] = 'PI'
@@ -39,7 +39,7 @@ map_stts['CHAR'] = 'XY'
 map_stts['NPROP'] = 'NE'
 
 
-#get stts part_of_speech tag from morphisto output
+#get stts part_of_speech tag from SMOR output
 def get_true_pos(raw_pos,line):
     pos = map_stts.get(raw_pos,raw_pos)
     pos2 = None

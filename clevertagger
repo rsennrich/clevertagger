@@ -3,7 +3,7 @@
 # Copyright © 2011 University of Zürich
 # Author: Rico Sennrich <sennrich@cl.uzh.ch>
 
-DESC = """clevertagger is a German part-of-speech tagger based on CRF++ and Morphisto.
+DESC = """clevertagger is a German part-of-speech tagger based on CRF++ and SMOR.
 It requires tokenized and sentence-delimited input (one token per line, empty line between sentenes) in UTF-8 encoding."""
 
 import sys
