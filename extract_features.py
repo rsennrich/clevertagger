@@ -8,6 +8,7 @@ import os
 import re
 import socket
 import time
+import fcntl
 from subprocess import Popen, PIPE
 from collections import defaultdict
 from morphisto_getpos import get_true_pos
@@ -184,17 +185,27 @@ class MorphistoAnalyzer(MorphAnalyzer):
         
         #regex to get coarse POS tag from morphisto output
         self.re_mainclass = re.compile(u'<\+(.*?)>')
-        
+        self.PORT = PORT
         self.p_server = self.server()
 
     
     def server(self):
         """Start a morphisto socket server. If one already exists, this will silently fail"""
-        
-        server = Popen([SFST_BIN, str(PORT), MORPHISTO_MODEL], stderr=open('/dev/null', 'w'))
+
+        while True:
+            self.lockfile = open('/tmp/.clevertagger-lock-{0}'.format(self.PORT),'w')
+            try:
+                self.lock = fcntl.lockf(self.lockfile, fcntl.LOCK_EX|fcntl.LOCK_NB)
+            except IOError:
+                self.PORT += 1
+                sys.stderr.write('PORT {0} busy. Trying to use PORT {1}\n'.format(self.PORT-1, self.PORT))
+                continue
+            break
+
+        server = Popen([SFST_BIN, str(self.PORT), MORPHISTO_MODEL], stderr=open('/dev/null', 'w'))
         return server
-    
-    
+
+
     def client(self, words):
         """Communicate with morphisto socket server to obtain analysis of word list."""
 
@@ -202,7 +213,7 @@ class MorphistoAnalyzer(MorphAnalyzer):
             
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((HOST, PORT))
+                s.connect((HOST, self.PORT))
                 s.send(u'\n'.join(words).encode('UTF-8'))
                 s.shutdown(socket.SHUT_WR)
                 analyses = ''
@@ -216,12 +227,12 @@ class MorphistoAnalyzer(MorphAnalyzer):
                
             #If connection unsuccessful, there's two strategies:
             # - if server process is still running, we assume that the model is still being loaded, and simply wait
-            # - if the server process has stopped, we assume that we so far used the morphisto server of another process, which now ended, and start a new one
+            # - if server has stopped, raise error
             except socket.error:
 
                 if self.p_server.poll():
-                    sys.stderr.write('Morphisto server has stopped: starting new one\n')
-                    self.p_server = self.server()
+                    sys.stderr.write('ERROR: server process has stopped\n')
+                    raise IOError
                 time.sleep(0.1)
 
     
