@@ -15,3 +15,7 @@ PORT = 9010         # The default port; if busy, port will be incremented by 1 u
 
 # Code for feature extraction with Gertwol is still included, but support is deprecated
 GERTWOL_BIN = '/opt/bin/uis-gertwol'
+
+# Two CRF tools are currently supported: CRF++ and Wapiti
+# Options: 'crf++', 'wapiti'
+CRF_BACKEND = 'crf++'

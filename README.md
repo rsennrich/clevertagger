@@ -4,7 +4,7 @@ clevertagger - morphologically informed POS tagging for German
 ABOUT
 -----
 
-clevertagger is a German part-of-speech tagger based on CRF++ and SMOR.
+clevertagger is a German part-of-speech tagger based on a CRF tool and SMOR.
 Its main component is a module that extracts features from SMOR's morphological analysis.
 The combination of machine learning and FST-based morphological features promises a robust performance even for words that have not been observed during training,
 in particular morphologically complex (and rare) adjectives, verbs and nouns, which tend to have high error rates with conventional taggers.
@@ -35,7 +35,9 @@ REQUIREMENTS
 
 - Linux (currently SFST is Unix/Linux only)
 - Python >= 2.6
-- CRF++ http://crfpp.googlecode.com/svn/trunk/doc/index.html
+- one of these CRF tools:
+  - CRF++ http://crfpp.googlecode.com/svn/trunk/doc/index.html
+  - Wapiti http://wapiti.limsi.fr/
 - an SMOR transducer (e.g. Morphisto http://code.google.com/p/morphisto/ )
 - SFST >= 1.3 http://www.ims.uni-stuttgart.de/projekte/gramotron/SOFTWARE/SFST.html
 
@@ -50,14 +52,14 @@ INSTALLATION INSTRUCTIONS
 2. You can download a pre-compiled Morphisto build (e.g. morphisto-02022011.a), but it needs to be in fst-infl2 format.
 to compile it, run:
     `fst-compiler morphisto-02022011.a morphisto-02022011.compact.a`
-3. Set the paths to the Morphisto model and SFST in `config.py`
-4. You need a CRF++ model **(not included)**. For instructions on how to train your own, see below.
+3. Set the paths to the SMOR model and SFST in `config.py`, and set the CRF back-end.
+4. You need a CRF++ or Wapiti model **(not included)**. For instructions on how to train your own, see below.
 
 
 USAGE
 -----
 
-Assuming that you have trained a CRF++ model, you can call clevertagger like this:
+Assuming that you have trained a CRF++/Wapiti model, you can call clevertagger like this:
 
     ./clevertagger < input_file
 
@@ -70,7 +72,7 @@ for untokenized input, use the `--tokenize` option. A sentence splitter is inclu
 
     preprocess/sentence_splitter < input_file | ./clevertagger --tokenize
 
-clevertagger also supports the n-best-tagging features of CRF++.
+clevertagger also supports the n-best-tagging features of CRF++/Wapiti.
 Use the option `-n` to get multiple analyses for each sentence, and `-t` to get multiple analyses for each token.
 
 
@@ -85,8 +87,13 @@ The second one may take you several days, depending on corpus size and the numbe
 
     ./clevertagger -e < training_file > crf_training_file
 
+For CRF++, train a model like this (you may want to change some options, like the number of threads)
+
     crf_learn -f 3 -c 1.5 -p 10 crf_config crf_training_file crfmodel
 
+For Wapiti, the command is this:
+
+    wapiti train --compact -p crf_config --nthread 10 crf_training_file crfmodel
 
 PERFORMANCE
 -----------

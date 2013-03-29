@@ -3,13 +3,14 @@
 # Copyright © 2011 University of Zürich
 # Author: Rico Sennrich <sennrich@cl.uzh.ch>
 
-DESC = """clevertagger is a German part-of-speech tagger based on CRF++ and SMOR.
+DESC = """clevertagger is a German part-of-speech tagger based on a linear-chain CRF and SMOR.
 It requires tokenized and sentence-delimited input (one token per line, empty line between sentenes) in UTF-8 encoding."""
 
 import sys
 import os
 import argparse
 from subprocess import Popen, PIPE
+from config import CRF_BACKEND
 
 def parse_command_line():
     parser = argparse.ArgumentParser(description=DESC)
@@ -23,7 +24,7 @@ def parse_command_line():
 
     parser.add_argument('-m', '--model', type=str,
                     default=os.path.join(sys.path[0],"crfmodel"), metavar='FILE',
-                    help='Path to CRF++ model.')
+                    help='Path to CRF++/Wapiti model.')
 
     parser.add_argument('-n', '--nbestsents', type=int,
                     default=1, metavar='N',
@@ -32,6 +33,7 @@ def parse_command_line():
     parser.add_argument('-t', '--nbesttags', type=int,
                     default=1, metavar='N',
                     help='Print N best analyses for each token.')
+
     parser.add_argument('--tokenize', action="store_true",
                     help='Tokenize text before tagging.')
 
@@ -42,6 +44,10 @@ def main(args):
 
     if args.nbesttags > 1 and args.nbestsents > 1:
         sys.stderr.write('ERROR: --nbesttags and --nbestsents are mutually exclusive options. Aborting.\n')
+        exit()
+
+    if args.nbesttags > 1 and CRF_BACKEND == 'wapiti':
+        sys.stderr.write('ERROR: --nbesttags is only supported for CRF++. Aborting.\n')
         exit()
 
     if args.e:
@@ -59,19 +65,22 @@ def main(args):
     
     if args.e:
         extract.wait()
-        
-    else:
-        
-        tagging_args = ['crf_test', '-m', args.model]
-        if args.nbesttags > 1:
-            tagging_args += ['-v', '2']
-        elif args.nbestsents > 1:
-            tagging_args += ['-n', str(args.nbestsents)]
 
-        tagging = Popen(tagging_args, stdin=extract.stdout, stdout=PIPE)
-        postprocess = Popen(['python', os.path.join(sys.path[0], 'postprocess.py'), str(args.nbesttags)], stdin=tagging.stdout, stdout=sys.stdout)
-        
-        postprocess.wait()
+    if CRF_BACKEND == 'wapiti':
+        cmd = ['wapiti', 'label', '-m', args.model]
+        if args.nbestsents > 1:
+            cmd += ['-s', '-p', '-n', str(args.nbestsents)]
+    elif CRF_BACKEND == 'crf++':
+        cmd = ['crf_test', '-m', args.model]
+        if args.nbesttags > 1:
+            cmd += ['-v', '2']
+        elif args.nbestsents > 1:
+            cmd += ['-n', str(args.nbestsents)]
+
+    tagging = Popen(cmd, stdin=extract.stdout, stdout=PIPE)
+    postprocess = Popen(['python', os.path.join(sys.path[0], 'postprocess.py'), str(args.nbesttags)], stdin=tagging.stdout, stdout=sys.stdout)
+
+    postprocess.wait()
 
 
 if __name__ == '__main__':
