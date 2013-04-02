@@ -283,11 +283,12 @@ class SMORAnalyzer(MorphAnalyzer):
     def main(self):
         """simple wrapper around process_line() which ensures that the server is terminated at the end.
            For a tighter integration of the analysis, process_line() can be directly called"""
-        
-        for line in sys.stdin:
-            sys.stdout.write(self.process_line(line))
-                
-        self.p_server.terminate()
+
+        try:
+            for line in sys.stdin:
+                sys.stdout.write(self.process_line(line))
+        finally:
+            self.p_server.terminate()
 
 
 def spelling_variations(word):

@@ -66,21 +66,23 @@ def main(args):
     if args.e:
         extract.wait()
 
-    if CRF_BACKEND == 'wapiti':
-        cmd = ['wapiti', 'label', '-m', args.model]
-        if args.nbestsents > 1:
-            cmd += ['-s', '-p', '-n', str(args.nbestsents)]
-    elif CRF_BACKEND == 'crf++':
-        cmd = ['crf_test', '-m', args.model]
-        if args.nbesttags > 1:
-            cmd += ['-v', '2']
-        elif args.nbestsents > 1:
-            cmd += ['-n', str(args.nbestsents)]
+    else:
 
-    tagging = Popen(cmd, stdin=extract.stdout, stdout=PIPE)
-    postprocess = Popen(['python', os.path.join(sys.path[0], 'postprocess.py'), str(args.nbesttags)], stdin=tagging.stdout, stdout=sys.stdout)
+        if CRF_BACKEND == 'wapiti':
+            cmd = ['wapiti', 'label', '-m', args.model]
+            if args.nbestsents > 1:
+                cmd += ['-s', '-p', '-n', str(args.nbestsents)]
+        elif CRF_BACKEND == 'crf++':
+            cmd = ['crf_test', '-m', args.model]
+            if args.nbesttags > 1:
+                cmd += ['-v', '2']
+            elif args.nbestsents > 1:
+                cmd += ['-n', str(args.nbestsents)]
 
-    postprocess.wait()
+        tagging = Popen(cmd, stdin=extract.stdout, stdout=PIPE)
+        postprocess = Popen(['python', os.path.join(sys.path[0], 'postprocess.py'), str(args.nbesttags)], stdin=tagging.stdout, stdout=sys.stdout)
+
+        postprocess.wait()
 
 
 if __name__ == '__main__':
