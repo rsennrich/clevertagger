@@ -253,40 +253,52 @@ class SMORAnalyzer(MorphAnalyzer):
                 self.posset[word].add(pos2)
 
 
-    def process_line(self, line):
-        """analyse the input morphologically and create features"""
-        
-        line = line.decode('UTF-8')
-            
-        linelist = line.split()
-        if not linelist:
-            return '\n'
-        
-        word = linelist[0]
-        if not word in self.posset:
-            todo = []
-            self.posset[word] = set([])
-            todo.append(word)
+    def analyze(self, lines):
+        """get all new words from input lines and send them to SMOR server for analysis"""
 
-            #deal with spelling variations that Gertwol doesn't know
-            for alternative in spelling_variations(word):
-                if not alternative in self.posset:
-                    self.posset[alternative] = set([])
-                    todo.append(alternative)
-                    
-            analyses = self.client(todo)
-            self.convert(analyses)
-            
-        return self.create_features(line)
+        todo = []
+        for line in lines:
+
+            linelist = line.split()
+            if not linelist:
+                continue
+
+            word = linelist[0]
+            if not word in self.posset:
+
+                self.posset[word] = set([])
+                todo.append(word)
+
+                #deal with spelling variations that Gertwol doesn't know
+                for alternative in spelling_variations(word):
+                    if not alternative in self.posset:
+                        self.posset[alternative] = set([])
+                        todo.append(alternative)
+
+        analyses = self.client(todo)
+        self.convert(analyses)
+
 
 
     def main(self):
-        """simple wrapper around process_line() which ensures that the server is terminated at the end.
-           For a tighter integration of the analysis, process_line() can be directly called"""
+        """send lines in batches to SMOR server for analysis, and create output for each batch"""
 
         try:
-            for line in sys.stdin:
-                sys.stdout.write(self.process_line(line))
+            buf = []
+            for i, line in enumerate(sys.stdin):
+                line = line.decode('UTF-8')
+                buf.append(line)
+
+                if i and not i % 10000:
+                    self.analyze(buf)
+                    for line in buf:
+                        sys.stdout.write(self.create_features(line))
+                    buf = []
+
+            self.analyze(buf)
+            for line in buf:
+                sys.stdout.write(self.create_features(line))
+
         finally:
             self.p_server.terminate()
 
