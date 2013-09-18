@@ -98,59 +98,41 @@ For Wapiti, the command is this:
 PERFORMANCE
 -----------
 
-Some older evaluation results on Smultron 1.1, with TnT/clevertagger models trained on Tüba-D/Z (and the standard TreeTagger model), 
-and using Gertwol (a proprietary morphological analyzer):
+Some evaluation results from (Sennrich, Volk and Schneider 2013), with TnT/clevertagger models trained on Tüba-D/Z (and the standard TreeTagger model), 
+and using Morphisto for morphological analysis:
 
-Error rates (in %)
+Tagging accuracy (in %)
 
 <table>
   <tr>
     <th>Tagger</th>
+    <th>TüBa-D/Z</th>
     <th>Sofies Welt</th>
-    <th>Economy Texts</th>
-    <th>Economy Texts (simplified)*</th>
   </tr>
 
   <tr>
     <td>TreeTagger</td>
-    <td>5.47</td>
-    <td>8.75</td>
-    <td>2.68</td>
+    <td>94.9</td>
+    <td>95.0</td>
   </tr>
 
   <tr>
     <td>TnT</td>
-    <td>5.49</td>
-    <td>5.95</td>
-    <td>2.65</td>
+    <td>97.0</td>
+    <td>94.7</td>
   </tr>
 
   <tr>
     <td>clevertagger</td>
-    <td>4.27</td>
-    <td>7.05</td>
-    <td>2.22</td>
+    <td>97.6</td>
+    <td>96.6</td>
   </tr>
 
 </table>
 
-*simplified means that the distinction between NE/NN/FM is ignored
+Tagging performance depends on the quality of the morphological analysis, and is slightly better with the SMOR lexicon.
 
-Performance with Morphisto is slightly worse than that with Gertwol at the moment.
-Tagging performance partially depends on the continued development of Morphisto;
-if a word is unknown to the morphological analyzer, it may still be tagged correctly based on other features (the word itself, its context, whether it is uppercased etc.)
-However, there is a strong bias towards tagging unknown words as NE (named entity),
-since typically, most tokens in a typical training text that are unknown to a morphological analyzer are names.
-
-With this caveat, here are three reasons to like clevertagger:
-
-- Other taggers also behave poorly for unknown words, e.g. tagging all uppercased unknown words as nouns, even if they are sentence-initial verbs/adjectives.
-  However, a FST-based morphology can cover a much bigger vocabulary, and thus have fewer unknown words.
-- Performance of the tagger will probably improve further along with that of the morphological resources used (Morphisto or another lexicon based on the SMOR morphology).
-- n-best-tagging can be beneficial in some applications, as the next evaluation shows.
-
-
-A more indirect evaluation measuring parsing performance of [ParZu](https://github.com/rsennrich/ParZu) on a 1000-sentence test set using different taggers:
+A more indirect evaluation measuring parsing performance of [ParZu](https://github.com/rsennrich/ParZu) on a 3000-sentence test set using different taggers:
 
 
 <table>
@@ -159,47 +141,44 @@ A more indirect evaluation measuring parsing performance of [ParZu](https://gith
     <th>precision</th>
     <th>recall</th>
     <th>f-measure</th>
-    <th>time</th>
   </tr>
 
   <tr>
     <td>TreeTagger</td>
-    <td>87.04</td>
-    <td>83.71</td>
-    <td>85.34</td>
-    <td>25s</td>
+    <td>85.6</td>
+    <td>83.7</td>
+    <td>84.6</td>
   </tr>
 
   <tr>
     <td>clevertagger</td>
-    <td>88.08</td>
-    <td>85.56</td>
-    <td>86.80</td>
-    <td>29s</td>
-  </tr>
-
-  <tr>
-    <td>clevertagger (5-best)</td>
-    <td>87.70</td>
-    <td>86.61</td>
-    <td>87.15</td>
-    <td>93s</td>
+    <td>87.9</td>
+    <td>86.7</td>
+    <td>87.3</td>
   </tr>
 
   <tr>
     <td>clevertagger (50-best)</td>
-    <td>87.41</td>
-    <td>86.78</td>
-    <td>87.09</td>
-    <td>262s</td>
+    <td>88.0</td>
+    <td>87.7</td>
+    <td>87.8</td>
   </tr>
 
   <tr>
     <td>gold tags</td>
-    <td>90.25</td>
-    <td>88.49</td>
-    <td>89.36</td>
-    <td>27s</td>
+    <td>89.8</td>
+    <td>89.3</td>
+    <td>89.5</td>
   </tr>
 
 </table>
+
+
+PUBLICATIONS
+------------
+
+The tagger is described in:
+
+Rico Sennrich, Martin Volk and Gerold Schneider (2013):
+   Exploiting Synergies Between Open Resources for German Dependency Parsing, POS-tagging, and Morphological Analysis.
+   In: Proceedings of the International Conference Recent Advances in Natural Language Processing 2013, Hissar, Bulgaria.
