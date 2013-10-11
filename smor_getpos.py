@@ -49,10 +49,10 @@ def get_true_pos(raw_pos,line):
         #stts tagset distinguishes between VV, VA and VM
         if line.startswith('<CAP>'):
             line = line[5:]
-        if line.startswith('haben') or line.startswith('werden') or line.startswith('sein'):
+        if line.startswith('haben') or line.startswith('hab<~>en') or line.startswith('werden') or line.startswith('werd<~>en') or line.startswith('sein'):
             pos += 'A'
-        elif line.startswith(u'dürfen') or line.startswith(u'können') or line.startswith('sollen') or line.startswith(u'müssen') or line.startswith(u'mögen') or line.startswith(u'wollen'):
-            pos += 'M'     
+        elif line.startswith(u'dürfen') or line.startswith(u'dürf<~>en') or line.startswith(u'können') or line.startswith(u'könn<~>en') or line.startswith('sollen') or line.startswith('soll<~>en') or line.startswith(u'müssen') or line.startswith(u'müss<~>en') or line.startswith(u'mögen') or line.startswith(u'mög<~>en') or line.startswith('wollen') or line.startswith('woll<~>en'):
+            pos += 'M'
         else:
             pos += 'V'
         
