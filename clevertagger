@@ -56,10 +56,10 @@ def main(args):
         e_out = PIPE
     
     if args.tokenize:
-        tokenizer = Popen(['perl', os.path.join(sys.path[0], 'preprocess', 'tokenizer.perl'), '-l', 'de'], stdout=PIPE)
+        tokenizer = Popen(['perl', os.path.join(sys.path[0], 'preprocess', 'tokenizer.perl'), '-l', 'de'], stdout=PIPE, stdin=args.input)
         e_in = tokenizer.stdout
     else:
-        e_in = sys.stdin
+        e_in = args.input
     
     extract = Popen([os.path.join(sys.path[0], 'extract_features.py')], stdin=e_in, stdout=e_out)
     
