@@ -41,7 +41,6 @@ def parse_command_line():
 
 
 def main(args):
-
     if args.nbesttags > 1 and args.nbestsents > 1:
         sys.stderr.write('ERROR: --nbesttags and --nbestsents are mutually exclusive options. Aborting.\n')
         exit()
@@ -54,12 +53,15 @@ def main(args):
         e_out = sys.stdout
     else:
         e_out = PIPE
-    
-    if args.tokenize:
-        tokenizer = Popen(['perl', os.path.join(sys.path[0], 'preprocess', 'tokenizer.perl'), '-l', 'de'], stdout=PIPE)
-        e_in = tokenizer.stdout
+
+    if args.input:
+        e_in = args.input
     else:
         e_in = sys.stdin
+    
+    if args.tokenize:
+        tokenizer = Popen(['perl', os.path.join(sys.path[0], 'preprocess', 'tokenizer.perl'), '-l', 'de'], stdin=e_in, stdout=PIPE)
+        e_in = tokenizer.stdout
     
     extract = Popen([os.path.join(sys.path[0], 'extract_features.py')], stdin=e_in, stdout=e_out)
     
