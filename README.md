@@ -38,7 +38,7 @@ REQUIREMENTS
 - one of these CRF tools:
   - CRF++ http://crfpp.googlecode.com/svn/trunk/doc/index.html
   - Wapiti http://wapiti.limsi.fr/
-- an SMOR transducer (e.g. Morphisto http://code.google.com/p/morphisto/ )
+- an SMOR transducer (e.g. Zmorge http://kitt.ifi.uzh.ch/kitt/zmorge/)
 - SFST >= 1.3 http://www.ims.uni-stuttgart.de/projekte/gramotron/SOFTWARE/SFST.html
 
 Optional dependencies:
@@ -49,11 +49,8 @@ INSTALLATION INSTRUCTIONS
 -------------------------
 
 1. Install the dependencies listed above
-2. You can download a pre-compiled Morphisto build (e.g. morphisto-02022011.a), but it needs to be in fst-infl2 format.
-to compile it, run:
-    `fst-compiler morphisto-02022011.a morphisto-02022011.compact.a`
-3. Set the paths to the SMOR model and SFST in `config.py`, and set the CRF back-end.
-4. You need a CRF++ or Wapiti model **(not included)**. For instructions on how to train your own, see below.
+2. Set the paths to the SMOR model and SFST in `config.py`, and set the CRF back-end.
+3. You need a CRF++ or Wapiti model **(not included)**. For instructions on how to train your own, see below.
 
 
 USAGE

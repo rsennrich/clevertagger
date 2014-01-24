@@ -1,7 +1,5 @@
-# Path to compact SMOR model. You can download a pre-compiled SMOR model (with Morphisto lexicon) from http://code.google.com/p/morphisto
-# to compact it, run:
-# fst-compiler morphisto-02022011.a morphisto-02022011.compact.a
-SMOR_MODEL = '/home/rico/morphisto/morphisto-02022011.compact.a'
+# Path to compact SMOR model. You can download a pre-compiled SMOR model (with Zmorge lexicon) from http://kitt.ifi.uzh.ch/kitt/zmorge/
+SMOR_MODEL = '/data/tools/morphology/zmorge-20140120-smor_newlemma.ca'
 
 # Morphisto uses UTF-8 encoding, SMOR with Stuttgart lexicon uses latin-1. Set accordingly.
 # The clevertagger frontend always uses UTF-8 encoding for input/output, regardless of the encoding of the morphology tool.
