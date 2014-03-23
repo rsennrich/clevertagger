@@ -1,5 +1,7 @@
 # Path to compact SMOR model. You can download a pre-compiled SMOR model (with Zmorge lexicon) from http://kitt.ifi.uzh.ch/kitt/zmorge/
-SMOR_MODEL = '/data/tools/morphology/zmorge-20140120-smor_newlemma.ca'
+#SMOR_MODEL = '/data/tools/morphology/zmorge-20140120-smor_newlemma.ca'
+
+SMOR_MODEL = '/data/zmorge/zmorge-20140224-smor_newlemma.e17234.ca'
 
 # Morphisto uses UTF-8 encoding, SMOR with Stuttgart lexicon uses latin-1. Set accordingly.
 # The clevertagger frontend always uses UTF-8 encoding for input/output, regardless of the encoding of the morphology tool.
@@ -16,4 +18,4 @@ GERTWOL_BIN = '/opt/bin/uis-gertwol'
 
 # Two CRF tools are currently supported: CRF++ and Wapiti
 # Options: 'crf++', 'wapiti'
-CRF_BACKEND = 'crf++'
+CRF_BACKEND = 'wapiti'

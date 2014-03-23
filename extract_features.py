@@ -3,11 +3,13 @@
 # Copyright © 2011 University of Zürich
 # Author: Rico Sennrich <sennrich@cl.uzh.ch>
 
+from __future__ import unicode_literals
 import sys
 import os
 import re
 import socket
 import time
+import codecs
 from subprocess import Popen, PIPE
 from collections import defaultdict
 from smor_getpos import get_true_pos
@@ -21,7 +23,7 @@ class MorphAnalyzer():
         self.posset = defaultdict(set)
 
         # Gertwol/SMOR only partially analyze punctuation. This adds missing analyses.
-        for item in ['(',')','{','}','"',"'",u'”',u'“','[',']',u'«',u'»','-',u'‒',u'–',u'‘',u'’','/','...','--']:
+        for item in ['(',')','{','}','"',"'",u'”',u'“','[',']','«','»','-','‒','–','‘','’','/','...','--']:
             self.posset[item].add('$(')
         self.posset[','].add('$,')
         for item in ['.',':',';','!','?']:
@@ -29,7 +31,7 @@ class MorphAnalyzer():
 
         #regex to check if word is alphanumeric
         #we don't use str.isalnum() because we want to treat hyphenated words as alphanumeric
-        self.alphnum = re.compile(ur'^(?:\w|\d|-)+$', re.U)
+        self.alphnum = re.compile(r'^(?:\w|\d|-)+$', re.U)
         
         
     def create_features(self, line):
@@ -71,12 +73,12 @@ class MorphAnalyzer():
         pos = sorted(pos)+['ZZZ']*10
         posstring = '\t'.join(pos[:10])
 
-        outstring = (u"{w}\t{wlower}\t{upper}\t{alnum}\t{pos}".format(w=word, wlower=word.lower(), upper=feature_upper, pos=posstring, alnum=feature_alnum))
+        outstring = ("{w}\t{wlower}\t{upper}\t{alnum}\t{pos}".format(w=word, wlower=word.lower(), upper=feature_upper, pos=posstring, alnum=feature_alnum))
 
         if truth:
             outstring += '\t'+truth
             
-        return outstring.encode("UTF-8")+'\n'
+        return outstring+'\n'
 
 
 
@@ -107,7 +109,7 @@ class GertwolAnalyzer(MorphAnalyzer):
 
         if new:
             morph_tool = Popen([os.path.join(sys.path[0], 'gertwol-wrapper.py')], stdin=PIPE, stdout=PIPE)
-            analyses = morph_tool.communicate('\n'.join(new).encode("UTF-8"))[0]
+            analyses = morph_tool.communicate('\n'.join(new)[0])
             self.convert(analyses)
 
     
@@ -116,7 +118,7 @@ class GertwolAnalyzer(MorphAnalyzer):
         
         word = ''
         pos = ''
-        for line in analyses.split('\n'):
+        for line in analyses.split(b'\n'):
 
             line = line.decode("UTF-8")
 
@@ -163,7 +165,7 @@ class GertwolAnalyzer(MorphAnalyzer):
         """do morphological analysis/feature extraction batchwise"""
         buf = []
         for i, line in enumerate(sys.stdin):
-            line = line.decode('UTF-8')
+
             buf.append(line)
             
             if i and not i % 10000:
@@ -194,12 +196,12 @@ class SMORAnalyzer(MorphAnalyzer):
 
         while True:
             server = Popen([SFST_BIN, str(self.PORT), SMOR_MODEL], stderr=PIPE, bufsize=0)
-            error = ''
+            error = b''
             while True:
                 error += server.stderr.read(1)
-                if error.endswith('listening to the socket ...'):
+                if error.endswith(b'listening to the socket ...'):
                     return server
-                elif error.endswith('ERROR on binding'):
+                elif error.endswith(b'ERROR on binding'):
                     self.PORT += 1
                     sys.stderr.write('PORT {0} busy. Trying to use PORT {1}\n'.format(self.PORT-1, self.PORT))
                     break
@@ -214,9 +216,9 @@ class SMORAnalyzer(MorphAnalyzer):
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(('localhost', self.PORT))
-        s.send(u'\n'.join(words).encode(SMOR_ENCODING))
+        s.send('\n'.join(words).encode(SMOR_ENCODING))
         s.shutdown(socket.SHUT_WR)
-        analyses = ''
+        analyses = b''
         data = True
         while data:
             data = s.recv(4096)
@@ -229,7 +231,7 @@ class SMORAnalyzer(MorphAnalyzer):
         """convert SMOR output into list of POS tags"""
         
         word = ''
-        for line in analyses.split('\n'):
+        for line in analyses.split(b'\n'):
 
             line = line.decode(SMOR_ENCODING)
 
@@ -286,7 +288,6 @@ class SMORAnalyzer(MorphAnalyzer):
         try:
             buf = []
             for i, line in enumerate(sys.stdin):
-                line = line.decode('UTF-8')
                 buf.append(line)
 
                 if i and not i % 10000:
@@ -341,6 +342,11 @@ def spelling_variations(word):
 
 
 if __name__ == '__main__':
+
+    if sys.version_info < (3, 0):
+        sys.stderr = codecs.getwriter('UTF-8')(sys.stderr)
+        sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
+        sys.stdin = codecs.getreader('UTF-8')(sys.stdin)
 
     Analyzer = SMORAnalyzer()
     #Analyzer = GertwolAnalyzer()

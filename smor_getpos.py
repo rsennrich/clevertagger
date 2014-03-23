@@ -11,9 +11,10 @@
 # $ echo -e "> kommen\nkommen<+V><Inf>\nkommen<+V><1><Pl><Pres><Ind>\nkommen<+V><1><Pl><Pres><Konj>\nkommen<+V><3><Pl><Pres><Ind>\nkommen<+V><3><Pl><Pres><Konj>" | python morphisto_getpos.py
 # kommen    VVFIN VVINF
 
-
+from __future__ import unicode_literals, print_function
 import sys
 import re
+import codecs
 
 #maps from SMOR tags to stts tags
 map_stts = {}
@@ -51,7 +52,7 @@ def get_true_pos(raw_pos,line):
             line = line[5:]
         if line.startswith('haben') or line.startswith('hab<~>en') or line.startswith('werden') or line.startswith('werd<~>en') or line.startswith('sein'):
             pos += 'A'
-        elif line.startswith(u'dürfen') or line.startswith(u'dürf<~>en') or line.startswith(u'können') or line.startswith(u'könn<~>en') or line.startswith('sollen') or line.startswith('soll<~>en') or line.startswith(u'müssen') or line.startswith(u'müss<~>en') or line.startswith(u'mögen') or line.startswith(u'mög<~>en') or line.startswith('wollen') or line.startswith('woll<~>en'):
+        elif line.startswith('dürfen') or line.startswith('dürf<~>en') or line.startswith('können') or line.startswith('könn<~>en') or line.startswith('sollen') or line.startswith('soll<~>en') or line.startswith('müssen') or line.startswith('müss<~>en') or line.startswith('mögen') or line.startswith('mög<~>en') or line.startswith('wollen') or line.startswith('woll<~>en'):
             pos += 'M'
         else:
             pos += 'V'
@@ -141,17 +142,21 @@ def get_true_pos(raw_pos,line):
 
 
 if __name__ == '__main__':
-    
-    re_mainclass = re.compile(u'<\+(.*?)>')
+
+    if sys.version_info < (3, 0):
+        sys.stdin = codecs.getreader('UTF-8')(sys.stdin)
+        sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
+
+    re_mainclass = re.compile('<\+(.*?)>')
     posset = set()
     word = ''
     
     for line in sys.stdin:
-        line = line.rstrip().decode('UTF-8')
+        line = line.rstrip()
         
         if line.startswith('>'):
             if word:
-                print("{0}\t{1}".format(word.encode('UTF-8'),' '.join(sorted(posset))))
+                print("{0}\t{1}".format(word,' '.join(sorted(posset))))
                 posset = set()
             word = line[2:]
             continue
@@ -166,4 +171,4 @@ if __name__ == '__main__':
         if pos2:
             posset.add(pos2)
             
-    print("{0}\t{1}".format(word.encode('UTF-8'),' '.join(sorted(posset))))
+    print("{0}\t{1}".format(word,' '.join(sorted(posset))))

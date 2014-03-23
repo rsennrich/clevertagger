@@ -5,10 +5,16 @@
 
 # Remove features and optionally limit number of tagging ambiguities displayed
 
+from __future__ import unicode_literals, print_function
 import sys
+import codecs
 
 i_nbest = int(sys.argv[1])
 tag_position = 14
+
+if sys.version_info < (3, 0):
+    sys.stdin = codecs.getreader('UTF-8')(sys.stdin)
+
 
 for line in sys.stdin:
     
