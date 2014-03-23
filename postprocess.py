@@ -14,6 +14,7 @@ tag_position = 14
 
 if sys.version_info < (3, 0):
     sys.stdin = codecs.getreader('UTF-8')(sys.stdin)
+    sys.stdout = codecs.getwriter('UTF-8')(sys.stdout)
 
 
 for line in sys.stdin:
