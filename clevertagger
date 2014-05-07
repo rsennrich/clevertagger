@@ -10,7 +10,10 @@ import sys
 import os
 import argparse
 from subprocess import Popen, PIPE
-from config import CRF_BACKEND
+from config import CRF_BACKEND, CRF_MODEL
+
+if not os.path.isabs(CRF_MODEL):
+    CRF_MODEL = os.path.join(sys.path[0], CRF_MODEL)
 
 def parse_command_line():
     parser = argparse.ArgumentParser(description=DESC)
@@ -23,7 +26,7 @@ def parse_command_line():
                     help='Input file. If not given, stdin is used.')
 
     parser.add_argument('-m', '--model', type=str,
-                    default=os.path.join(sys.path[0],"crfmodel"), metavar='FILE',
+                    default=CRF_MODEL, metavar='FILE',
                     help='Path to CRF++/Wapiti model.')
 
     parser.add_argument('-n', '--nbestsents', type=int,

@@ -19,3 +19,6 @@ GERTWOL_BIN = '/opt/bin/uis-gertwol'
 # Two CRF tools are currently supported: CRF++ and Wapiti
 # Options: 'crf++', 'wapiti'
 CRF_BACKEND = 'wapiti'
+
+# location of the trained model (see README for training instructions)
+CRF_MODEL = 'crfmodel'

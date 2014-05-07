@@ -92,6 +92,8 @@ For Wapiti, the command is this:
 
     wapiti train --compact -p crf_config --nthread 10 crf_training_file crfmodel
 
+Finally, change the option `CRF_MODEL` in `config.py` to point to the trained model, or move the trained model in this directory.
+
 PERFORMANCE
 -----------
 
