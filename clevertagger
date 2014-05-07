@@ -81,6 +81,9 @@ def main(args):
                 cmd += ['-v', '2']
             elif args.nbestsents > 1:
                 cmd += ['-n', str(args.nbestsents)]
+        else:
+            sys.stderr.write('Error: invalid value \'{0}\' for option \'CRF_BACKEND\'\n'.format(CRF_BACKEND))
+            sys.exit(1)
 
         tagging = Popen(cmd, stdin=extract.stdout, stdout=PIPE)
         postprocess = Popen(['python', os.path.join(sys.path[0], 'postprocess.py'), str(args.nbesttags)], stdin=tagging.stdout, stdout=sys.stdout)
