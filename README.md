@@ -9,9 +9,6 @@ Its main component is a module that extracts features from SMOR's morphological 
 The combination of machine learning and FST-based morphological features promises a robust performance even for words that have not been observed during training,
 in particular morphologically complex (and rare) adjectives, verbs and nouns, which tend to have high error rates with conventional taggers.
 
-**The repository contains no pre-trained models!**
-If you know of a German corpus that is annotated in the STTS tagset and has a permissive license, please let me know.
-
 `smor_getpos.py` can also be used as a stand-alone script to convert the SMOR output into a list of possible part-of-speech tags in the STTS tagset.
 
 AUTHOR
@@ -36,9 +33,8 @@ REQUIREMENTS
 - Linux (currently SFST is Unix/Linux only)
 - Python >= 2.6
 - one of these CRF tools:
-  - CRF++ http://crfpp.googlecode.com/svn/trunk/doc/index.html
   - Wapiti http://wapiti.limsi.fr/
-- an SMOR transducer (e.g. Zmorge http://kitt.ifi.uzh.ch/kitt/zmorge/)
+  - CRF++ http://crfpp.googlecode.com/svn/trunk/doc/index.html (no trained models available)
 - SFST >= 1.3 http://www.ims.uni-stuttgart.de/projekte/gramotron/SOFTWARE/SFST.html
 
 Optional dependencies:
@@ -48,9 +44,9 @@ Optional dependencies:
 INSTALLATION INSTRUCTIONS
 -------------------------
 
-1. Install the dependencies listed above
-2. Set the paths to the SMOR model and SFST in `config.py`, and set the CRF back-end.
-3. You need a CRF++ or Wapiti model **(not included)**. For instructions on how to train your own, see below.
+1. Install the dependencies listed above.
+2. Obtain an SMOR tranducer and a corresponding CRF model. Both are available at http://kitt.ifi.uzh.ch/kitt/zmorge/ .
+3. Set the options `SMOR_MODEL` and `CRF_MODEL` in `config.py` (and adjust other options if necessary).
 
 
 USAGE
@@ -76,7 +72,7 @@ Use the option `-n` to get multiple analyses for each sentence, and `-t` to get 
 TRAINING INSTRUCTIONS
 ---------------------
 
-You need a training text in the format illustrated by `sample_training_file.txt`, 
+A new CRF model can be trained with a training text in the format illustrated by `sample_training_file.txt`,
 i.e. one word per line, token and tag separated by spaces/tab; empty lines for sentence boundaries.
 
 Then, execute the following two commands.
@@ -84,20 +80,21 @@ The second one may take you several days, depending on corpus size and the numbe
 
     ./clevertagger -e < training_file > crf_training_file
 
-For CRF++, train a model like this (you may want to change some options, like the number of threads)
+For Wapiti, a typical training command is:
+
+    wapiti train --compact -p crf_config --nthread 10 crf_training_file crfmodel
+
+For CRF++, a typical command is:
 
     crf_learn -f 3 -c 1.5 -p 10 crf_config crf_training_file crfmodel
 
-For Wapiti, the command is this:
-
-    wapiti train --compact -p crf_config --nthread 10 crf_training_file crfmodel
 
 Finally, change the option `CRF_MODEL` in `config.py` to point to the trained model, or move the trained model in this directory.
 
 PERFORMANCE
 -----------
 
-Some evaluation results from (Sennrich, Volk and Schneider 2013), with TnT/clevertagger models trained on Tüba-D/Z (and the standard TreeTagger model), 
+Some evaluation results from (Sennrich, Volk and Schneider 2013), with TnT/clevertagger models trained on Tüba-D/Z (and the standard TreeTagger model),
 and using Morphisto for morphological analysis:
 
 Tagging accuracy (in %)
