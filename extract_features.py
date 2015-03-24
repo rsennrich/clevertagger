@@ -195,7 +195,12 @@ class SMORAnalyzer(MorphAnalyzer):
         """Start a socket server. If socket is busy, look for available socket"""
 
         while True:
-            server = Popen([SFST_BIN, str(self.PORT), SMOR_MODEL], stderr=PIPE, bufsize=0)
+            try:
+                server = Popen([SFST_BIN, str(self.PORT), SMOR_MODEL], stderr=PIPE, bufsize=0)
+            except OSError as e:
+                if e.errno == 2:
+                    sys.stderr.write('Error: {0} not found. Please install sfst and/or adjust SFST_BIN in clevertagger config.\n'.format(SFST_BIN))
+                    sys.exit(1)
             error = b''
             while True:
                 error += server.stderr.read(1)
@@ -216,7 +221,7 @@ class SMORAnalyzer(MorphAnalyzer):
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(('localhost', self.PORT))
-        s.send('\n'.join(words).encode(SMOR_ENCODING))
+        s.sendall('\n'.join(words).encode(SMOR_ENCODING))
         s.shutdown(socket.SHUT_WR)
         analyses = b''
         data = True

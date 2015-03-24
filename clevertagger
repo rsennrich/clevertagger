@@ -91,7 +91,12 @@ def main(args):
             sys.stderr.write('Error: invalid value \'{0}\' for option \'CRF_BACKEND\'\n'.format(CRF_BACKEND))
             sys.exit(1)
 
-        tagging = Popen(cmd, stdin=extract.stdout, stdout=PIPE, cwd = root_directory)
+        try:
+            tagging = Popen(cmd, stdin=extract.stdout, stdout=PIPE, cwd = root_directory)
+        except OSError as e:
+            if e.errno == 2:
+                sys.stderr.write('Error: Executable {0} not found. Please install {0} and/or adjust CRF_BACKEND_EXEC in the clevertagger config file.\n'.format(CRF_BACKEND_EXEC))
+                sys.exit(1)
         postprocess = Popen(['python', os.path.join(sys.path[0], 'postprocess.py'), str(args.nbesttags)], stdin=tagging.stdout, stdout=sys.stdout)
 
         postprocess.wait()
