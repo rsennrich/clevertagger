@@ -68,6 +68,16 @@ for untokenized input, use the `--tokenize` option. A sentence splitter is inclu
 clevertagger also supports the n-best-tagging features of CRF++/Wapiti.
 Use the option `-n` to get multiple analyses for each sentence, and `-t` to get multiple analyses for each token.
 
+You can also use clevertagger as a Python module with a persistent tagger class;
+it expects a list of tokenized sentences as input:
+
+    import clevertagger
+    tagger = clevertagger.Clevertagger()
+
+    for sentence in tagger.tag(['Das ist ein Test .', 'Das auch .']):
+        print sentence + '\n'
+
+
 
 TRAINING INSTRUCTIONS
 ---------------------
