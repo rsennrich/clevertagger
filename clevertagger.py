@@ -183,7 +183,10 @@ def process_by_sentence(processor, sentences):
         processor.send(sentence + '\n')
         while True:
             word = processor.readline().strip()
-            if word:
+            # hack for Wapiti stderr
+            if word.endswith('sequences labeled'):
+                continue
+            elif word:
                 words.append(word)
             else:
                 break
