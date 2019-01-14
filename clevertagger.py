@@ -177,6 +177,8 @@ class Clevertagger(object):
 def process_by_sentence(processor, sentences):
     sentences_out = []
     for sentence in sentences:
+        if not sentence:
+            continue
         words = []
         processor.send(sentence + '\n')
         while True:
