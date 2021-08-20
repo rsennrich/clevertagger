@@ -212,6 +212,7 @@ class SMORAnalyzer(MorphAnalyzer):
                     break
                 elif server.poll():
                     error += server.stderr.read()
+                    error = error.decode('utf-8')
                     sys.stderr.write(error)
                     sys.exit(1)
 
