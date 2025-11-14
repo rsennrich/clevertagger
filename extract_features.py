@@ -185,7 +185,7 @@ class SMORAnalyzer(MorphAnalyzer):
         MorphAnalyzer.__init__(self)
 
         #regex to get coarse POS tag from SMOR output
-        self.re_mainclass = re.compile(u'<\+(.*?)>')
+        self.re_mainclass = re.compile(r'<\+(.*?)>')
         self.PORT = PORT
 
         # start server, and make sure it accepts connection
